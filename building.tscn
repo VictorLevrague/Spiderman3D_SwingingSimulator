@@ -1,0 +1,36 @@
+[gd_scene load_steps=7 format=3 uid="uid://d6gbxhm87wgh"]
+
+[sub_resource type="Gradient" id="Gradient_f3sb7"]
+offsets = PackedFloat32Array(0, 0.237179, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.108974, 0.108974, 0.108974, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_fj7yv"]
+gradient = SubResource("Gradient_f3sb7")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tlwt5"]
+albedo_texture = SubResource("GradientTexture2D_fj7yv")
+
+[sub_resource type="BoxMesh" id="BoxMesh_aqk2v"]
+material = SubResource("StandardMaterial3D_tlwt5")
+size = Vector3(10, 40, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f3sb7"]
+size = Vector3(10, 40, 10)
+
+[sub_resource type="BoxMesh" id="BoxMesh_f3sb7"]
+
+[node name="Building" type="StaticBody3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_aqk2v")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_f3sb7")
+
+[node name="SwingPoint" type="Node3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.10808, -10.8507, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SwingPoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.699944, 0)
+mesh = SubResource("BoxMesh_f3sb7")

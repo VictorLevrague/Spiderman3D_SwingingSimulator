@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3 uid="uid://debso14x0r1b"]
+
+[ext_resource type="PackedScene" uid="uid://db4lb5a4xubfg" path="res://character_spidey.tscn" id="1_f3sb7"]
+[ext_resource type="PackedScene" uid="uid://d6gbxhm87wgh" path="res://building.tscn" id="2_fj7yv"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gv5m4"]
+albedo_color = Color(0.363385, 0.360833, 0.31571, 1)
+metallic = 0.43
+metallic_specular = 0.49
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_f3sb7"]
+material = SubResource("StandardMaterial3D_gv5m4")
+size = Vector2(100000, 100000)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fj7yv"]
+size = Vector3(100000, 0.001, 100000)
+
+[node name="World" type="Node3D"]
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("PlaneMesh_f3sb7")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_fj7yv")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.887937, -0.386079, 0.250022, 0.15118, 0.758332, 0.634096, -0.434411, -0.525239, 0.731718, 0, 66, 0)
+shadow_enabled = true
+
+[node name="Character" parent="." instance=ExtResource("1_f3sb7")]
+
+[node name="Building" parent="." instance=ExtResource("2_fj7yv")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 19.8202, 0)
