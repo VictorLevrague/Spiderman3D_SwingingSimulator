@@ -22,7 +22,7 @@ var rope_length: float
 var is_swinging: bool = false
 var last_direction: Vector3 = Vector3.FORWARD
 
-var web_mesh: MeshInstance3D
+@onready var web_renderer: MeshInstance3D = %WebRenderer
 
 func _input(event: InputEvent) -> void:
     if event.is_action_pressed("swing"):
@@ -80,8 +80,8 @@ func _process_swing(delta: float, input_direction):
             var radial_velocity = velocity.dot(direction_to_web_anchor)
             if radial_velocity < 0:
                 velocity -= direction_to_web_anchor * radial_velocity
-    if web_mesh:
-        _process_web_mesh()
+    if web_renderer.mesh:
+        %WebRenderer.process_web_mesh(anchor, get_bone_position())
     if position.y > anchor.y:
         stop_web_mesh()
 
@@ -90,54 +90,23 @@ func _process_free_fall(delta, input_direction):
     velocity.z = lerp(velocity.z, input_direction.y * speed, delta * 3.0)
     velocity.y -= air_gravity * delta
 
-func _process_web_mesh():
-    var immediate_mesh = web_mesh.mesh as ImmediateMesh
-    immediate_mesh.clear_surfaces()
-    
-    var material = web_mesh.get_active_material(0)
-    
-    immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES, material)
-    immediate_mesh.surface_add_vertex(anchor)
-    immediate_mesh.surface_add_vertex(get_bone_position())
-    immediate_mesh.surface_end()
-
 func attach_web():
     anchor = get_closest_swing_point()
     rope_length = (anchor - get_bone_position()).length()
     is_swinging = true
     
-    web_mesh = cast_web_mesh()
+    %WebRenderer.cast_web_mesh(anchor, get_bone_position())
 
-func cast_web_mesh() -> MeshInstance3D:
-    var mesh_instance = MeshInstance3D.new()
-    var immediate_mesh = ImmediateMesh.new()
-    var material = ORMMaterial3D.new()
-    
-    mesh_instance.mesh = immediate_mesh
-    mesh_instance.set_surface_override_material(0, material)
-    mesh_instance.cast_shadow = false
-    
-    immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES, material)
-    immediate_mesh.surface_add_vertex(anchor)
-    immediate_mesh.surface_add_vertex(get_bone_position())
-    immediate_mesh.surface_end()
-    
-    material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-    material.albedo_color = Color.WHITE_SMOKE
-    
-    get_tree().get_root().add_child(mesh_instance)
-    return mesh_instance
+func stop_web_mesh():
+    is_swinging = false
+    if web_renderer.mesh:
+        %WebRenderer.mesh = null
+
+func get_closest_swing_point():
+    return %Building.get_node("%SwingPoint").global_position
 
 func get_bone_position():
     var bone_idx : int = %Skeleton3D.find_bone("mixamorig_LeftHand_23")
     var local_bone_transform : Transform3D = %Skeleton3D.get_bone_global_pose(bone_idx)
     var global_bone_pos : Vector3 = %Skeleton3D.to_global(local_bone_transform.origin)
     return global_bone_pos
-
-func stop_web_mesh():
-    is_swinging = false
-    if web_mesh:
-        web_mesh.queue_free()
-
-func get_closest_swing_point():
-    return %Building.get_node("%SwingPoint").global_position
