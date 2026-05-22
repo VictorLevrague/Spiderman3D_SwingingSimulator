@@ -1,19 +1,27 @@
 extends CharacterBody3D
 
+@export_group("Grounded")
 @export var speed : float = 10.0
-@export var swinging_speed: float = 7.
-@export var jump_quantity: float = 10
 @export var rotation_speed: float = 10.0
+@export var jump_quantity: float = 10
 
-var last_direction: Vector3 = Vector3.FORWARD
+@export_group("Swinging")
+@export var swinging_speed: float = 7.
+@export var swing_gravity:= 20.0
+@export var web_strength = 0.1
 
+@export_group("Wall Climbing")
+@export var wall_climbing_speed: float = 10.0
+@export var side_wall_climbing_speed: float = 10.0
+
+@export_group("Free Falling")
+@export var air_gravity := 15.0
+ 
 var anchor: Vector3
 var rope_length: float
 var is_swinging: bool = false
-@export var AIR_GRAVITY := 15.0
-@export var SWING_GRAVITY:= 20.0
- 
-var web_strength = 0.1
+var last_direction: Vector3 = Vector3.FORWARD
+
 var web_mesh: MeshInstance3D
 
 func _input(event: InputEvent) -> void:
@@ -41,9 +49,9 @@ func _physics_process(delta: float) -> void:
 
     if is_on_wall():
         var side_direction = - get_wall_normal().cross(up_direction)
-        velocity.x = input_direction.x * side_direction.x * speed
-        velocity.z = input_direction.x * side_direction.z * speed
-        velocity.y = - input_direction.y * speed
+        velocity.x = input_direction.x * side_direction.x * side_wall_climbing_speed
+        velocity.z = input_direction.x * side_direction.z * side_wall_climbing_speed
+        velocity.y = - input_direction.y * wall_climbing_speed
     move_and_slide()
 
 func _process_grounded(delta: float, input_direction: Vector2) -> void:
@@ -61,7 +69,7 @@ func _process_grounded(delta: float, input_direction: Vector2) -> void:
 func _process_swing(delta: float, input_direction):
     velocity.x = input_direction.x * swinging_speed
     velocity.z = input_direction.y * swinging_speed
-    velocity.y -= SWING_GRAVITY * delta
+    velocity.y -= swing_gravity * delta
     var to_anchor: Vector3 = anchor - get_bone_position()
     var distance_to_anchor: float = to_anchor.length()
     if rope_length > 0:
@@ -80,7 +88,7 @@ func _process_swing(delta: float, input_direction):
 func _process_free_fall(delta, input_direction):
     velocity.x = lerp(velocity.x, input_direction.x * speed, delta * 3.0)
     velocity.z = lerp(velocity.z, input_direction.y * speed, delta * 3.0)
-    velocity.y -= AIR_GRAVITY * delta
+    velocity.y -= air_gravity * delta
 
 func _process_web_mesh():
     var immediate_mesh = web_mesh.mesh as ImmediateMesh
