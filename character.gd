@@ -39,12 +39,11 @@ func _physics_process(delta: float) -> void:
     else:
         _process_free_fall(delta, input_direction)
 
-    #if is_on_wall():
-        #var side_direction = - get_wall_normal().cross(up_direction)
-        #print(side_direction)
-        #velocity.x = input_direction.x * side_direction.x * speed
-        #velocity.z = input_direction.x * side_direction.z * speed
-        #velocity.y = - input_direction.y * speed
+    if is_on_wall():
+        var side_direction = - get_wall_normal().cross(up_direction)
+        velocity.x = input_direction.x * side_direction.x * speed
+        velocity.z = input_direction.x * side_direction.z * speed
+        velocity.y = - input_direction.y * speed
     move_and_slide()
 
 func _process_grounded(delta: float, input_direction: Vector2) -> void:
