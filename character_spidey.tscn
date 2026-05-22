@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=4 uid="uid://db4lb5a4xubfg"]
+[gd_scene load_steps=19 format=4 uid="uid://db4lb5a4xubfg"]
 
 [ext_resource type="Script" uid="uid://b0h4yhmfej2jr" path="res://character.gd" id="1_3nocg"]
 [ext_resource type="Script" uid="uid://d3tcci7q4fqvc" path="res://web_renderer.gd" id="2_tmxyt"]
@@ -1819,8 +1819,11 @@ _data = {
 radius = 0.399766
 height = 1.63603
 
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_tmxyt"]
+
 [node name="Character" type="CharacterBody3D"]
 script = ExtResource("1_3nocg")
+boost_to_web_anchor = 0.085
 
 [node name="Sketchfab_Scene" type="Node3D" parent="."]
 unique_name_in_owner = true
@@ -2339,4 +2342,5 @@ current = true
 
 [node name="WebRenderer" type="MeshInstance3D" parent="."]
 unique_name_in_owner = true
+mesh = SubResource("ImmediateMesh_tmxyt")
 script = ExtResource("2_tmxyt")

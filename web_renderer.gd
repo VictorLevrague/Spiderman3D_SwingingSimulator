@@ -2,6 +2,7 @@ extends MeshInstance3D
 
 func cast_web_mesh(anchor: Vector3, cast_position: Vector3) -> void:
     var immediate_mesh = ImmediateMesh.new()
+    
     var material = ORMMaterial3D.new()
     material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     material.albedo_color = Color.WHITE_SMOKE

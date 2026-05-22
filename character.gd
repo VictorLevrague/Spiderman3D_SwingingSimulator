@@ -9,6 +9,7 @@ extends CharacterBody3D
 @export var swinging_speed: float = 7.
 @export var swing_gravity:= 20.0
 @export var web_strength = 0.1
+@export_range(0, 1.0) var boost_to_web_anchor: float = 0.2
 
 @export_group("Wall Climbing")
 @export var wall_climbing_speed: float = 10.0
@@ -47,7 +48,7 @@ func _physics_process(delta: float) -> void:
     else:
         _process_free_fall(delta, input_direction)
 
-    if is_on_wall():
+    if is_on_wall() and last_direction.dot(-get_wall_normal()) > 0:
         var side_direction = - get_wall_normal().cross(up_direction)
         velocity.x = input_direction.x * side_direction.x * side_wall_climbing_speed
         velocity.z = input_direction.x * side_direction.z * side_wall_climbing_speed
@@ -92,7 +93,7 @@ func _process_free_fall(delta, input_direction):
 
 func attach_web():
     anchor = get_closest_swing_point()
-    rope_length = (anchor - get_bone_position()).length()
+    rope_length = (anchor - get_bone_position()).length() * (1 - boost_to_web_anchor)
     is_swinging = true
     
     %WebRenderer.cast_web_mesh(anchor, get_bone_position())
