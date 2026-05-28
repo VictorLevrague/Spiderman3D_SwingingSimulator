@@ -6,10 +6,12 @@ extends CharacterBody3D
 @export var jump_quantity: float = 10
 
 @export_group("Swinging")
-@export var swinging_speed: float = 7.
-@export var swing_gravity:= 20.0
+@export var swinging_speed: float = 3
+@export var swing_gravity:= 3
 @export var web_strength = 0.1
-@export_range(0, 1.0) var boost_to_web_anchor: float = 0.2
+@export_range(0, 1.0) var boost_to_web_anchor: float = 0.5
+@export var speed_boost_swinging: float = 5.
+@export var maximum_height_web: float = 50.
 
 @export_group("Wall Climbing")
 @export var wall_climbing_speed: float = 10.0
@@ -34,10 +36,9 @@ func _input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
     var input_direction = Input.get_vector("move_left","move_right","move_forward","move_backward")
-
-    last_direction = Vector3(input_direction.x, 0, input_direction.y)
     
     if input_direction.length() > 0.1:
+        last_direction = Vector3(input_direction.x, 0, input_direction.y).normalized()
         var target_angle = atan2(last_direction.x, last_direction.z)
         %Sketchfab_Scene.rotation.y = lerp_angle(%Sketchfab_Scene.rotation.y, target_angle, rotation_speed * delta)
     
@@ -48,7 +49,9 @@ func _physics_process(delta: float) -> void:
     else:
         _process_free_fall(delta, input_direction)
 
-    if is_on_wall() and last_direction.dot(-get_wall_normal()) > 0:
+    var direction_to_wall = last_direction.dot(-get_wall_normal().normalized())
+    
+    if is_on_wall() and direction_to_wall > 0.5:
         var side_direction = - get_wall_normal().cross(up_direction)
         velocity.x = input_direction.x * side_direction.x * side_wall_climbing_speed
         velocity.z = input_direction.x * side_direction.z * side_wall_climbing_speed
@@ -68,8 +71,8 @@ func _process_grounded(delta: float, input_direction: Vector2) -> void:
         #%AnimationPlayer.play("Jump")
 
 func _process_swing(delta: float, input_direction):
-    velocity.x = input_direction.x * swinging_speed
-    velocity.z = input_direction.y * swinging_speed
+    velocity.x += input_direction.x * swinging_speed * delta
+    velocity.z += input_direction.y * swinging_speed * delta
     velocity.y -= swing_gravity * delta
     var to_anchor: Vector3 = anchor - get_bone_position()
     var distance_to_anchor: float = to_anchor.length()
@@ -92,22 +95,49 @@ func _process_free_fall(delta, input_direction):
     velocity.y -= air_gravity * delta
 
 func attach_web():
-    anchor = get_closest_swing_point()
-    rope_length = (anchor - get_bone_position()).length() * (1 - boost_to_web_anchor)
-    is_swinging = true
-    
-    %WebRenderer.cast_web_mesh(anchor, get_bone_position())
+    anchor = get_best_swing_point_anchor()
+    if anchor:
+        rope_length = (anchor - get_bone_position()).length() * (1 - boost_to_web_anchor)
+        is_swinging = true
+        velocity.x = last_direction.x * swinging_speed * speed_boost_swinging
+        velocity.y += 10
+        velocity.z = last_direction.z * swinging_speed * speed_boost_swinging
+        
+        %WebRenderer.cast_web_mesh(anchor, get_bone_position())
+    else: 
+        stop_web_mesh()
 
 func stop_web_mesh():
     is_swinging = false
     if web_renderer.mesh:
         %WebRenderer.mesh = null
 
-func get_closest_swing_point():
-    return %Building.get_node("%SwingPoint").global_position
+func get_best_swing_point_anchor() -> Vector3:
+    #TODO: enhance the swing_point chosen. The height is always chosen, even though one that is enar and almost as high could be better.
+    var best_swing_point
+    var greateast_distance = 0
+    for swing_point in get_tree().get_nodes_in_group("swing_point"):
+        if swing_point.global_position.y > self.global_position.y and has_line_of_sight(self.global_position, swing_point.global_position):
+            var distance_to_player: float = swing_point.global_position.distance_to(self.global_position)
+            print(distance_to_player)
+            if distance_to_player < maximum_height_web and distance_to_player > greateast_distance:
+                best_swing_point = swing_point
+                greateast_distance = distance_to_player
+    if best_swing_point:
+        return best_swing_point.global_position
+    else:
+        return Vector3.ZERO
 
 func get_bone_position():
     var bone_idx : int = %Skeleton3D.find_bone("mixamorig_LeftHand_23")
     var local_bone_transform : Transform3D = %Skeleton3D.get_bone_global_pose(bone_idx)
     var global_bone_pos : Vector3 = %Skeleton3D.to_global(local_bone_transform.origin)
     return global_bone_pos
+
+func has_line_of_sight(from: Vector3, to: Vector3) -> bool:
+    var space_state = get_world_3d().direct_space_state
+    var query = PhysicsRayQueryParameters3D.create(from, to)
+    query.collision_mask = 1
+    query.exclude = [self]
+    var result = space_state.intersect_ray(query)
+    return result.is_empty()
