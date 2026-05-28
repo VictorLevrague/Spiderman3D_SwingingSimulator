@@ -34,3 +34,31 @@ shadow_enabled = true
 [node name="Building" parent="." instance=ExtResource("2_fj7yv")]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 19.8202, 0)
+
+[node name="Building2" parent="." instance=ExtResource("2_fj7yv")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.727, 19.8202, 0.65712)
+
+[node name="Building3" parent="." instance=ExtResource("2_fj7yv")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 20.7346, -40.6965)
+
+[node name="Building4" parent="." instance=ExtResource("2_fj7yv")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.727, 20.7346, -40.0394)
+
+[node name="Building5" parent="." instance=ExtResource("2_fj7yv")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 45.2836, -97.4618)
+
+[node name="Building6" parent="." instance=ExtResource("2_fj7yv")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.727, 45.2836, -96.8047)
+
+[node name="Building7" parent="." instance=ExtResource("2_fj7yv")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 70.8413, -142.225)
+
+[node name="Building8" parent="." instance=ExtResource("2_fj7yv")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.727, 70.8413, -141.568)
