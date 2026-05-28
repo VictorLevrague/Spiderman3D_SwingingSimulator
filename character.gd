@@ -11,10 +11,11 @@ extends CharacterBody3D
 @export var swing_gravity:= 3
 @export var web_strength = 0.1
 @export_range(0, 1.0) var boost_to_web_anchor: float = 0.5
-@export var speed_boost_swinging: float = 5.
+@export var speed_boost_swinging: float = 6.
 @export var maximum_height_web: float = 50.
 @export var speed_fov_change : float = 0.75
 @export var swing_fov: float = 90.
+@export var height_boost: float = 15.
 
 @export_group("Wall Climbing")
 @export var wall_climbing_speed: float = 10.0
@@ -89,7 +90,7 @@ func _process_swing(delta: float, input_direction):
                 velocity -= direction_to_web_anchor * radial_velocity
     if web_renderer.mesh:
         %WebRenderer.process_web_mesh(anchor, get_bone_position())
-    if position.y > anchor.y:
+    if position.y > anchor.y or not has_line_of_sight(self.global_position, anchor):
         stop_web_mesh()
 
 func _process_free_fall(delta, input_direction):
@@ -103,7 +104,7 @@ func attach_web():
         rope_length = (anchor - get_bone_position()).length() * (1 - boost_to_web_anchor)
         is_swinging = true
         velocity.x = last_direction.x * swinging_speed * speed_boost_swinging
-        velocity.y += 10
+        velocity.y += height_boost
         velocity.z = last_direction.z * swinging_speed * speed_boost_swinging
         
         %WebRenderer.cast_web_mesh(anchor, get_bone_position())
@@ -120,7 +121,7 @@ func stop_web_mesh():
     camera_fov_tween.tween_property(%Camera3D, "fov", base_fov, speed_fov_change)
 
 func get_best_swing_point_anchor() -> Vector3:
-    #TODO: enhance the swing_point chosen. The height is always chosen, even though one that is enar and almost as high could be better.
+    #TODO: enhance the swing_point chosen. The heighest is always chosen, even though one that is near and almost as high could be better.
     var best_swing_point
     var greateast_distance = 0
     for swing_point in get_tree().get_nodes_in_group("swing_point"):
