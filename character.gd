@@ -4,6 +4,7 @@ extends CharacterBody3D
 @export var speed : float = 10.0
 @export var rotation_speed: float = 10.0
 @export var jump_quantity: float = 10
+@export var base_fov: float = 75.
 
 @export_group("Swinging")
 @export var swinging_speed: float = 3
@@ -12,6 +13,8 @@ extends CharacterBody3D
 @export_range(0, 1.0) var boost_to_web_anchor: float = 0.5
 @export var speed_boost_swinging: float = 5.
 @export var maximum_height_web: float = 50.
+@export var speed_fov_change : float = 0.75
+@export var swing_fov: float = 90.
 
 @export_group("Wall Climbing")
 @export var wall_climbing_speed: float = 10.0
@@ -104,6 +107,8 @@ func attach_web():
         velocity.z = last_direction.z * swinging_speed * speed_boost_swinging
         
         %WebRenderer.cast_web_mesh(anchor, get_bone_position())
+        var camera_fov_tween: Tween = get_tree().create_tween()
+        camera_fov_tween.tween_property(%Camera3D, "fov", swing_fov, speed_fov_change)
     else: 
         stop_web_mesh()
 
@@ -111,6 +116,8 @@ func stop_web_mesh():
     is_swinging = false
     if web_renderer.mesh:
         %WebRenderer.mesh = null
+    var camera_fov_tween: Tween = get_tree().create_tween()
+    camera_fov_tween.tween_property(%Camera3D, "fov", base_fov, speed_fov_change)
 
 func get_best_swing_point_anchor() -> Vector3:
     #TODO: enhance the swing_point chosen. The height is always chosen, even though one that is enar and almost as high could be better.
